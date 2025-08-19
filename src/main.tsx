@@ -7,9 +7,7 @@ import "@fontsource/poppins/700.css";
 
 // Optional: customize Joy theme
 const theme = extendTheme({
-  typography: {
-    fontFamily: "Poppins, Arial, sans-serif",
-  },
+  fontFamily: "Poppins, sans-serif", // <- directly here
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

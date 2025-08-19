@@ -41,7 +41,8 @@ const RandomFood: React.FC<RandomFoodProps> = ({ foods }) => {
         gap: 4,
       }}
     >
-      <Typography variant="h3" sx={{ minWidth: 200, textAlign: "center" }} sx={{color: "#ffffff"}}>
+      <Typography variant="h3" sx={{ minWidth: 200, textAlign: "center", color: "#ffffff" }}
+>
         {currentName || "Pick a food!"}
       </Typography>
 

@@ -1,4 +1,4 @@
-import React from "react";
+
 import RandomFood from "./pages/RandomFood";
 import type { Food } from "./components/FoodCard";
 import { Box } from "@mui/material";
