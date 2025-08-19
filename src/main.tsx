@@ -8,10 +8,10 @@ import "@fontsource/poppins/700.css";
 // Customize Joy theme
 const theme = extendTheme({
   fontFamily: {
-    body: "Poppins, sans-serif",
-    display: "Poppins, sans-serif",
+    body: "monospace, sans-serif",
+    display: "monospace, sans-serif",
     code: "monospace",
-    fallback: "Arial, sans-serif",
+    fallback: "monospace, sans-serif",
   },
 });
 
