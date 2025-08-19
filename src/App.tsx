@@ -15,6 +15,8 @@ const foodList: Food[] = [
   { name: "P'het" },
   { name: "Chha Kdav" },
   { name: "Mi Chha" },
+  { name: "Bok L'hong nv Kep" },
+  { name: "Merk Ang nv Kampot" },
 ];
 
 function App() {
