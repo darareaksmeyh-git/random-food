@@ -3,7 +3,6 @@ import { Card, CardContent, Typography } from "@mui/material";
 
 export type Food = {   // 👈 exported so others can import it
   name: string;
-  image: string;
 };
 
 type FoodCardProps = {
