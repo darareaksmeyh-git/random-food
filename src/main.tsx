@@ -5,9 +5,14 @@ import { CssVarsProvider, extendTheme } from "@mui/joy/styles";
 import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/700.css";
 
-// Optional: customize Joy theme
+// Customize Joy theme
 const theme = extendTheme({
-  fontFamily: "Poppins, sans-serif", // <- directly here
+  fontFamily: {
+    body: "Poppins, sans-serif",
+    display: "Poppins, sans-serif",
+    code: "monospace",
+    fallback: "Arial, sans-serif",
+  },
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
