@@ -1,34 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import Button from '@mui/joy/Button';
+import Button from "@mui/joy/Button";
 import type { Food } from "../components/FoodCard";
 
-type RandomFoodProps = {
-  foods: Food[];
-};
-
-const RandomFood: React.FC<RandomFoodProps> = ({ foods }) => {
+const RandomFood: React.FC = () => {
+  const [foods, setFoods] = useState<Food[]>([]);
   const [currentName, setCurrentName] = useState<string>("");
   const [spinning, setSpinning] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch from API instead of using hardcoded list
+const fetchFoods = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch("/api/food");
+    const data: Food[] = await res.json();
+    setFoods(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchFoods();
+}, []);
+
 
   const handleRandomPick = () => {
-  if (spinning) return; // prevent double click
+    if (spinning || foods.length === 0) return;
 
-  setSpinning(true);
+    setSpinning(true);
 
-  const spinInterval = setInterval(() => {
-    const randomIndex = Math.floor(Math.random() * foods.length);
-    setCurrentName(foods[randomIndex].name);
-  }, 50); // change name every 100ms
+    const spinInterval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * foods.length);
+      setCurrentName(foods[randomIndex].name);
+    }, 50);
 
-  // stop spinning after ~2 seconds
-  setTimeout(() => {
-    clearInterval(spinInterval);
-    const finalIndex = Math.floor(Math.random() * foods.length);
-    setCurrentName(foods[finalIndex].name);
-    setSpinning(false);
-  }, 1000);
-};
+    // stop spinning after ~1 second
+    setTimeout(() => {
+      clearInterval(spinInterval);
+      const finalIndex = Math.floor(Math.random() * foods.length);
+      setCurrentName(foods[finalIndex].name);
+      setSpinning(false);
+    }, 1000);
+  };
 
   return (
     <Box
@@ -41,14 +58,22 @@ const RandomFood: React.FC<RandomFoodProps> = ({ foods }) => {
         gap: 4,
       }}
     >
-      <Typography variant="h3" sx={{ minWidth: 200, textAlign: "center", color: "#ffffff" }}
->
+      <Typography
+        variant="h3"
+        sx={{ minWidth: 200, textAlign: "center", color: "#ffffff" }}
+      >
         {currentName || "Pick a food!"}
       </Typography>
 
-      <Button variant="soft" color="primary" onClick={handleRandomPick} >
-        Spin Food
-      </Button>
+      <Button
+      variant="soft"
+      color="primary"
+      onClick={handleRandomPick}
+      disabled={loading || foods.length === 0}  // disable only while loading
+      sx={{ fontWeight: "bold" }} >
+      {loading ? "Jam Tix..." : "Spin Food"}
+</Button>
+
     </Box>
   );
 };
