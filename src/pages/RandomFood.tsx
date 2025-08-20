@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import Button from "@mui/joy/Button";
-import type { Food } from "../components/FoodCard";
+import {supabase} from "../../supabaseClient"
+
+// Define Food type
+interface Food {
+  id: number;
+  name: string;
+}
+
 
 const RandomFood: React.FC = () => {
   const [foods, setFoods] = useState<Food[]>([]);
@@ -9,24 +16,23 @@ const RandomFood: React.FC = () => {
   const [spinning, setSpinning] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Fetch from API instead of using hardcoded list
-const fetchFoods = async () => {
-  setLoading(true);
-  try {
-    const res = await fetch("/api/food");
-    const data: Food[] = await res.json();
-    setFoods(data);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
+  // Fetch from Supabase
+  const fetchFoods = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.from("foods").select("*");
+      if (error) throw error;
+      setFoods(data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-useEffect(() => {
-  fetchFoods();
-}, []);
-
+  useEffect(() => {
+    fetchFoods();
+  }, []);
 
   const handleRandomPick = () => {
     if (spinning || foods.length === 0) return;
@@ -38,7 +44,6 @@ useEffect(() => {
       setCurrentName(foods[randomIndex].name);
     }, 50);
 
-    // stop spinning after ~1 second
     setTimeout(() => {
       clearInterval(spinInterval);
       const finalIndex = Math.floor(Math.random() * foods.length);
@@ -66,14 +71,14 @@ useEffect(() => {
       </Typography>
 
       <Button
-      variant="soft"
-      color="primary"
-      onClick={handleRandomPick}
-      disabled={loading || foods.length === 0}  // disable only while loading
-      sx={{ fontWeight: "bold" }} >
-      {loading ? "Jam Tix..." : "Spin Food"}
-</Button>
-
+        variant="soft"
+        color="primary"
+        onClick={handleRandomPick}
+        disabled={loading || foods.length === 0}
+        sx={{ fontWeight: "bold" }}
+      >
+        {loading ? "Jam Tix..." : "Spin Food"}
+      </Button>
     </Box>
   );
 };

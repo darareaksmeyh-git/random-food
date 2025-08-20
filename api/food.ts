@@ -1,15 +1,11 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Content-Type", "application/json");
 
-  // POST request → create new food
   if (req.method === "POST") {
     const { name } = req.body as { name?: string };
     if (!name) return res.status(400).json({ error: "Name is required" });
@@ -24,12 +20,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json(data[0]);
   }
 
-  // PUT request → update existing food
   if (req.method === "PUT") {
     const { id, name } = req.body as { id?: string; name?: string };
-    
-    if (!id) return res.status(400).json({ error: "ID is required" });
-    if (!name) return res.status(400).json({ error: "Name is required" });
+    if (!id || !name) return res.status(400).json({ error: "ID & Name required" });
 
     const { data, error } = await supabase
       .from("foods")
@@ -43,25 +36,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json(data[0]);
   }
 
-  // DELETE request → delete food item
   if (req.method === "DELETE") {
     const { id } = req.body as { id?: string };
-    
     if (!id) return res.status(400).json({ error: "ID is required" });
 
-    const { error } = await supabase
-      .from("foods")
-      .delete()
-      .eq("id", id);
-
+    const { error } = await supabase.from("foods").delete().eq("id", id);
     if (error) return res.status(500).json({ error: error.message });
 
-    return res.status(200).json({ message: "Food item deleted successfully" });
+    return res.status(200).json({ message: "Food deleted successfully" });
   }
 
-  // GET request → return all foods
+  // GET → return all foods
   const { data, error } = await supabase.from("foods").select("*");
-
   if (error) return res.status(500).json({ error: error.message });
 
   res.status(200).json(data);
