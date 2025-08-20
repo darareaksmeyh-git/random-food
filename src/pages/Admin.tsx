@@ -98,6 +98,11 @@ export default function Admin() {
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   
+  const logout = () => {
+    localStorage.removeItem('admin');
+    navigate('/login');
+  };
+
   // Notification states
   const [notification, setNotification] = useState({
     open: false,
@@ -279,10 +284,54 @@ export default function Admin() {
 
   return (
     <>
-      <Stack justifyContent="center" alignItems="center" sx={{ minHeight: "100vh", p: 2, bgcolor: "background.body" }}>
-        <Card sx={{ width: { xs: "100%", sm: 500 }, p: 2, boxShadow: "md" }}>
-          <CardContent>
-            <Typography level="h4" mb={2}>Admin Panel</Typography>
+      <Stack justifyContent="center" alignItems="center" sx={{ 
+        minHeight: "100vh", 
+        p: { xs: 1, sm: 2 }, // More padding on mobile
+        bgcolor: "#000", 
+        overflow: 'hidden',
+        boxSizing: 'border-box'
+      }}>
+        <Button 
+          onClick={logout}
+          variant="outlined" 
+          color="neutral"
+          sx={{ 
+            position: 'fixed', 
+            top: { xs: 8, sm: 16 }, // Adjusted for mobile
+            right: { xs: 8, sm: 16 }, // Adjusted for mobile
+            zIndex: 1000,
+            color: '#fff',
+            borderColor: '#666',
+            fontSize: { xs: '12px', sm: 'inherit' },
+            px: { xs: 1, sm: 2 },
+            '&:hover': {
+              borderColor: '#888',
+              bgcolor: '#2a2a2a'
+            }
+          }}
+        >
+          Logout
+        </Button>
+        <Card sx={{ 
+          width: { xs: "100%", sm: 500 }, 
+          p: { xs: 1.5, sm: 2 }, // More padding on mobile
+          boxShadow: "md", 
+          bgcolor: "#121212",
+          maxWidth: '100%',
+          overflow: 'visible',
+          mx: { xs: 0.5, sm: 0 } // Margin on mobile
+        }}>
+          <CardContent sx={{ 
+            overflow: 'visible',
+            p: { xs: 1, sm: 0 } // Padding adjustment for mobile
+          }}>
+            <Typography level="h4" mb={2} sx={{ 
+              color: "#fff", 
+              textAlign: 'center',
+              fontSize: { xs: '1.5rem', sm: 'inherit' } // Smaller on mobile
+            }}>
+              Admin Panel
+            </Typography>
 
             {/* Input & Add Button */}
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1} mb={2}>
@@ -293,138 +342,228 @@ export default function Admin() {
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') addFood();
                 }}
-                sx={{ flex: 1 }}
+                sx={{ 
+                  flex: 1,
+                  '& input': {
+                    fontSize: { xs: '16px', sm: 'inherit' }, // Prevents zoom on iOS
+                    px: { xs: 1, sm: 2 } // Padding adjustment
+                  }
+                }}
               />
               <Button 
                 onClick={addFood} 
                 variant="solid" 
                 color="primary"
-                loading={notification.type === 'loading' && notification.message === "Adding food item..."}
+                sx={{ 
+                  minWidth: '80px',
+                  fontSize: { xs: '14px', sm: 'inherit' } // Font size adjustment
+                }}
               >
                 Add
               </Button>
             </Stack>
 
-            <Typography level="title-md" mb={1}>Food List:</Typography>
+            <Typography level="title-md" mb={1} sx={{ 
+              color: "#fff",
+              fontSize: { xs: '1rem', sm: 'inherit' } // Font size adjustment
+            }}>
+              Food List:
+            </Typography>
 
-            {/* Food List */}
-            <Stack spacing={1} width="100%">
-              {paginatedList.map((f, i) => {
-                const actualIndex = (page - 1) * itemsPerPage + i;
-                const isEditing = editingId === actualIndex;
-                
-                return (
-                  <Sheet
-                    key={f.id || i}
-                    variant="outlined"
-                    sx={{
-                      p: 1,
-                      display: "flex",
-                      flexDirection: { xs: "column", sm: "row" },
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      borderRadius: "md",
-                      bgcolor: "background.body",
-                      width: "100%",
-                      boxSizing: "border-box",
-                    }}
-                  >
-                    {isEditing ? (
-                      <Input
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') saveEdit(i);
-                          if (e.key === 'Escape') cancelEdit();
-                        }}
-                        sx={{ flex: 1, mr: 1 }}
-                        autoFocus
-                      />
-                    ) : (
-                      <Typography
-                        sx={{
-                          wordBreak: "break-word",
-                          flex: 1,
-                          minWidth: 0,
+            {/* Food List Container with fixed height and scroll */}
+            <Box sx={{ 
+              maxHeight: { xs: '50vh', sm: '60vh' }, 
+              overflowY: 'auto',
+              mb: 2,
+              pr: { xs: 0.5, sm: 1 }, // Padding adjustment
+              '&::-webkit-scrollbar': {
+                width: '6px',
+              },
+              '&::-webkit-scrollbar-track': {
+                background: '#2a2a2a',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: '#555',
+                borderRadius: '4px',
+              }
+            }}>
+              <Stack spacing={1} width="100%">
+                {paginatedList.map((f, i) => {
+                  const actualIndex = (page - 1) * itemsPerPage + i;
+                  const isEditing = editingId === actualIndex;
+                  
+                  return (
+                    <Sheet
+                      key={f.id || i}
+                      variant="outlined"
+                      sx={{
+                        p: { xs: 0.75, sm: 1 }, // More padding on mobile
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        borderRadius: "md",
+                        width: "100%",
+                        boxSizing: "border-box",
+                        bgcolor: "#1e1e1e",
+                        borderColor: "#333",
+                        minHeight: '60px', // Ensure consistent height
+                        mx: { xs: 0, sm: 0 } // Margin adjustment
+                      }}
+                    >
+                      {isEditing ? (
+                        <Input
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') saveEdit(i);
+                            if (e.key === 'Escape') cancelEdit();
+                          }}
+                          sx={{ 
+                            flex: 1, 
+                            mr: { sm: 1 },
+                            mb: { xs: 1, sm: 0 },
+                            width: '100%',
+                            '& input': {
+                              fontSize: { xs: '16px', sm: 'inherit' },
+                              px: { xs: 1, sm: 2 } // Padding adjustment
+                            }
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <Typography
+                          sx={{
+                            wordBreak: "break-word",
+                            flex: 1,
+                            minWidth: 0,
+                            color: "#fff",
+                            fontSize: { xs: '14px', sm: 'inherit' },
+                            px: { xs: 0.5, sm: 0 },
+                            textAlign: { xs: 'center', sm: 'left' } // Center text on mobile
+                          }}
+                        >
+                          {f.name}
+                        </Typography>
+                      )}
+                      
+                      <Stack 
+                        direction="row" 
+                        spacing={1} 
+                        sx={{ 
+                          width: { xs: '100%', sm: 'auto' },
+                          justifyContent: { xs: 'center', sm: 'flex-start' }, // Center buttons on mobile
+                          mt: { xs: 1, sm: 0 }
                         }}
                       >
-                        {f.name}
-                      </Typography>
-                    )}
-                    
-                    <Stack direction="row" spacing={1} mt={{ xs: 1, sm: 0 }}>
-                      {isEditing ? (
-                        <>
-                          <Button
-                            variant="plain"
-                            color="success"
-                            size="sm"
-                            onClick={() => saveEdit(i)}
-                          >
-                            <Icon icon="material-symbols:save" width={20} />
-                          </Button>
-                          <Button
-                            variant="plain"
-                            color="neutral"
-                            size="sm"
-                            onClick={cancelEdit}
-                          >
-                            <Icon icon="material-symbols:cancel" width={20} />
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button
-                            variant="plain"
-                            color="neutral"
-                            size="sm"
-                            onClick={() => startEdit(i)}
-                          >
-                            <Icon icon="line-md:edit-full-twotone" width={20} />
-                          </Button>
-                          <Button
-                            variant="plain"
-                            color="danger"
-                            size="sm"
-                            onClick={() => openDeleteModal(i)}
-                          >
-                            <Icon icon="material-symbols:delete" width={20} />
-                          </Button>
-                        </>
-                      )}
-                    </Stack>
-                  </Sheet>
-                );
-              })}
-            </Stack>
+                        {isEditing ? (
+                          <>
+                            <Button
+                              variant="soft"
+                              color="success"
+                              size="sm"
+                              onClick={() => saveEdit(i)}
+                              sx={{ 
+                                minWidth: 'auto',
+                                px: { xs: 1, sm: 2 } // Padding adjustment
+                              }}
+                            >
+                              <Icon icon="material-symbols:save" width={20} />
+                            </Button>
+                            <Button
+                              variant="soft"
+                              color="neutral"
+                              size="sm"
+                              onClick={cancelEdit}
+                              sx={{ 
+                                minWidth: 'auto',
+                                px: { xs: 1, sm: 2 } // Padding adjustment
+                              }}
+                            >
+                              <Icon icon="material-symbols:cancel" width={20} />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="soft"
+                              color="neutral"
+                              size="sm"
+                              onClick={() => startEdit(i)}
+                              sx={{ 
+                                minWidth: 'auto',
+                                px: { xs: 1, sm: 2 } // Padding adjustment
+                              }}
+                            >
+                              <Icon icon="line-md:edit-full-twotone" width={20} />
+                            </Button>
+                            <Button
+                              variant="soft"
+                              color="danger"
+                              size="sm"
+                              onClick={() => openDeleteModal(i)}
+                              sx={{ 
+                                minWidth: 'auto',
+                                px: { xs: 1, sm: 2 } // Padding adjustment
+                              }}
+                            >
+                              <Icon icon="material-symbols:delete" width={20} />
+                            </Button>
+                          </>
+                        )}
+                      </Stack>
+                    </Sheet>
+                  );
+                })}
+              </Stack>
+            </Box>
 
             {/* Pagination */}
-            <Stack direction="row" justifyContent="center" spacing={1} mt={2} flexWrap="wrap">
-              {Array.from({ length: Math.ceil(list.length / itemsPerPage) }, (_, i) => (
-                <Button
-                  key={i}
-                  size="sm"
-                  variant={page === i + 1 ? "solid" : "outlined"}
-                  color="primary"
-                  onClick={() => setPage(i + 1)}
-                >
-                  {i + 1}
-                </Button>
-              ))}
-            </Stack>
+            {list.length > itemsPerPage && (
+              <Stack direction="row" justifyContent="center" spacing={1} mt={2} flexWrap="wrap">
+                {Array.from({ length: Math.ceil(list.length / itemsPerPage) }, (_, i) => (
+                  <Button
+                    key={i}
+                    size="sm"
+                    variant={page === i + 1 ? "solid" : "outlined"}
+                    color="primary"
+                    onClick={() => setPage(i + 1)}
+                    sx={{ 
+                      minWidth: { xs: '32px', sm: '36px' }, 
+                      height: { xs: '32px', sm: '36px' },
+                      fontSize: { xs: '12px', sm: '14px' }
+                    }}
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
+              </Stack>
+            )}
           </CardContent>
         </Card>
       </Stack>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal - Mobile Optimized */}
       <Modal open={deleteModalOpen} onClose={closeDeleteModal}>
-        <ModalDialog variant="outlined" role="alertdialog" sx={{ maxWidth: 400 }}>
-          <ModalClose onClick={closeDeleteModal} />
-          <Typography level="h6" component="h2" mb={1}>
+        <ModalDialog 
+          variant="outlined" 
+          role="alertdialog" 
+          sx={{ 
+            maxWidth: 400,
+            width: '90%',
+            mx: 'auto',
+            bgcolor: '#121212',
+            color: '#fff',
+            p: { xs: 2, sm: 3 } // Padding adjustment
+          }}
+        >
+          <ModalClose onClick={closeDeleteModal} sx={{ color: '#fff' }} />
+          <Typography level="h6" component="h2" mb={1} sx={{ color: '#fff' }}>
             Confirm Delete
           </Typography>
-          <Divider sx={{ my: 1 }} />
-          <Typography level="body-md" sx={{ mb: 2 }}>
+          <Divider sx={{ my: 1, bgcolor: '#333' }} />
+          <Typography level="body-md" sx={{ mb: 2, color: '#fff' }}>
             Lub Men Ten Men? <strong>"{getFoodNameToDelete()}"</strong>?
             Tah lub bat hz nah!
           </Typography>
@@ -434,6 +573,11 @@ export default function Admin() {
               color="neutral" 
               onClick={closeDeleteModal}
               disabled={deleteLoading}
+              sx={{ 
+                color: '#fff', 
+                borderColor: '#666',
+                fontSize: { xs: '12px', sm: 'inherit' }
+              }}
             >
               Cancel
             </Button>
@@ -442,6 +586,7 @@ export default function Admin() {
               color="danger" 
               onClick={deleteFood}
               loading={deleteLoading}
+              sx={{ fontSize: { xs: '12px', sm: 'inherit' } }}
               startDecorator={deleteLoading ? null : <Icon icon="material-symbols:delete" />}
             >
               {deleteLoading ? "Pg lub..." : "Delete"}

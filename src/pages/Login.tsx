@@ -17,10 +17,10 @@ export default function Login() {
   };
 
   return (
-    <Stack justifyContent="center" alignItems="center" sx={{ minHeight: "100vh", bgcolor: "background.body" }}>
-      <Card sx={{ width: 320, p: 2, boxShadow: "md" }}>
+    <Stack justifyContent="center" alignItems="center" sx={{ minHeight: "100vh", bgcolor: "#000" }}>
+      <Card sx={{ width: 320, p: 2, boxShadow: "md", bgcolor: "#121212" }}>
         <CardContent>
-          <Typography level="h4" component="h1" mb={2}>
+          <Typography level="h4" component="h1" mb={2} sx={{ color: "#fff" }}>
             Admin Login
           </Typography>
           <Stack spacing={2}>
