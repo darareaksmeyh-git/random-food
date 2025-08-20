@@ -18,6 +18,11 @@ import {
 } from "@mui/joy";
 import { Icon } from "@iconify/react";
 
+// Define a local type that includes id
+interface FoodWithId extends Food {
+  id: string;
+}
+
 // Notification component
 interface NotificationProps {
   open: boolean;
@@ -35,10 +40,14 @@ function Notification({ open, message, type, onClose }: NotificationProps) {
     loading: <Icon icon="line-md:loading-loop" style={{ fontSize: '20px' }} />
   };
 
-  const colors = {
-    success: 'success',
-    error: 'danger',
-    loading: 'neutral'
+  // Use proper MUI Joy color values
+  const getColor = () => {
+    switch (type) {
+      case 'success': return 'success';
+      case 'error': return 'danger';
+      case 'loading': return 'neutral';
+      default: return 'neutral';
+    }
   };
 
   return (
@@ -56,14 +65,14 @@ function Notification({ open, message, type, onClose }: NotificationProps) {
       }}
     >
       <Alert
-        color={colors[type]}
+        color={getColor()}
         variant="soft"
         startDecorator={icons[type]}
         endDecorator={
           type !== 'loading' && (
             <Button
               variant="plain"
-              color={colors[type]}
+              color={getColor()}
               size="sm"
               onClick={onClose}
               sx={{ minHeight: 'auto', p: 0.5 }}
@@ -90,7 +99,7 @@ function Notification({ open, message, type, onClose }: NotificationProps) {
 
 export default function Admin() {
   const [food, setFood] = useState("");
-  const [list, setList] = useState<Food[]>([]);
+  const [list, setList] = useState<FoodWithId[]>([]); // Use FoodWithId instead of Food
   const [page, setPage] = useState(1);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -139,7 +148,7 @@ export default function Admin() {
 
     fetch("/api/food")
       .then(res => res.json())
-      .then((data: Food[]) => setList(data))
+      .then((data: FoodWithId[]) => setList(data)) // Use FoodWithId here
       .catch(err => {
         console.error(err);
         showNotification("Ot mean", "error");
@@ -166,7 +175,7 @@ export default function Admin() {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
-      const newItem: Food = await res.json();
+      const newItem: FoodWithId = await res.json(); // Use FoodWithId here
       setList(prev => [...prev, newItem]);
       setFood("");
       showNotification("Hzhz boss!");
@@ -199,13 +208,13 @@ export default function Admin() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          id: list[actualIndex].id,
+          id: list[actualIndex].id, // This should now work
           name: editValue 
         }),
       });
       
       if (res.ok) {
-        const updatedItem = await res.json();
+        const updatedItem: FoodWithId = await res.json(); // Use FoodWithId here
         const newList = [...list];
         newList[actualIndex] = updatedItem;
         setList(newList);
@@ -248,7 +257,7 @@ export default function Admin() {
     showNotification("Pg tah lub...", "loading");
     
     const actualIndex = (page - 1) * itemsPerPage + itemToDelete;
-    const foodId = list[actualIndex].id;
+    const foodId = list[actualIndex].id; // This should now work
     
     try {
       const res = await fetch("/api/food", {
@@ -286,7 +295,7 @@ export default function Admin() {
     <>
       <Stack justifyContent="center" alignItems="center" sx={{ 
         minHeight: "100vh", 
-        p: { xs: 1, sm: 2 }, // More padding on mobile
+        p: { xs: 1, sm: 2 },
         bgcolor: "#000", 
         overflow: 'hidden',
         boxSizing: 'border-box'
@@ -297,8 +306,8 @@ export default function Admin() {
           color="neutral"
           sx={{ 
             position: 'fixed', 
-            top: { xs: 8, sm: 16 }, // Adjusted for mobile
-            right: { xs: 8, sm: 16 }, // Adjusted for mobile
+            top: { xs: 8, sm: 16 },
+            right: { xs: 8, sm: 16 },
             zIndex: 1000,
             color: '#fff',
             borderColor: '#666',
@@ -314,21 +323,21 @@ export default function Admin() {
         </Button>
         <Card sx={{ 
           width: { xs: "100%", sm: 500 }, 
-          p: { xs: 1.5, sm: 2 }, // More padding on mobile
+          p: { xs: 1.5, sm: 2 },
           boxShadow: "md", 
           bgcolor: "#121212",
           maxWidth: '100%',
           overflow: 'visible',
-          mx: { xs: 0.5, sm: 0 } // Margin on mobile
+          mx: { xs: 0.5, sm: 0 }
         }}>
           <CardContent sx={{ 
             overflow: 'visible',
-            p: { xs: 1, sm: 0 } // Padding adjustment for mobile
+            p: { xs: 1, sm: 0 }
           }}>
             <Typography level="h4" mb={2} sx={{ 
               color: "#fff", 
               textAlign: 'center',
-              fontSize: { xs: '1.5rem', sm: 'inherit' } // Smaller on mobile
+              fontSize: { xs: '1.5rem', sm: 'inherit' }
             }}>
               Admin Panel
             </Typography>
@@ -345,8 +354,8 @@ export default function Admin() {
                 sx={{ 
                   flex: 1,
                   '& input': {
-                    fontSize: { xs: '16px', sm: 'inherit' }, // Prevents zoom on iOS
-                    px: { xs: 1, sm: 2 } // Padding adjustment
+                    fontSize: { xs: '16px', sm: 'inherit' },
+                    px: { xs: 1, sm: 2 }
                   }
                 }}
               />
@@ -356,7 +365,7 @@ export default function Admin() {
                 color="primary"
                 sx={{ 
                   minWidth: '80px',
-                  fontSize: { xs: '14px', sm: 'inherit' } // Font size adjustment
+                  fontSize: { xs: '14px', sm: 'inherit' }
                 }}
               >
                 Add
@@ -365,7 +374,7 @@ export default function Admin() {
 
             <Typography level="title-md" mb={1} sx={{ 
               color: "#fff",
-              fontSize: { xs: '1rem', sm: 'inherit' } // Font size adjustment
+              fontSize: { xs: '1rem', sm: 'inherit' }
             }}>
               Food List:
             </Typography>
@@ -375,7 +384,7 @@ export default function Admin() {
               maxHeight: { xs: '50vh', sm: '60vh' }, 
               overflowY: 'auto',
               mb: 2,
-              pr: { xs: 0.5, sm: 1 }, // Padding adjustment
+              pr: { xs: 0.5, sm: 1 },
               '&::-webkit-scrollbar': {
                 width: '6px',
               },
@@ -395,10 +404,10 @@ export default function Admin() {
                   
                   return (
                     <Sheet
-                      key={f.id || i}
+                      key={f.id || i} 
                       variant="outlined"
                       sx={{
-                        p: { xs: 0.75, sm: 1 }, // More padding on mobile
+                        p: { xs: 0.75, sm: 1 },
                         display: "flex",
                         flexDirection: { xs: "column", sm: "row" },
                         justifyContent: "space-between",
@@ -408,8 +417,8 @@ export default function Admin() {
                         boxSizing: "border-box",
                         bgcolor: "#1e1e1e",
                         borderColor: "#333",
-                        minHeight: '60px', // Ensure consistent height
-                        mx: { xs: 0, sm: 0 } // Margin adjustment
+                        minHeight: '60px',
+                        mx: { xs: 0, sm: 0 }
                       }}
                     >
                       {isEditing ? (
@@ -427,7 +436,7 @@ export default function Admin() {
                             width: '100%',
                             '& input': {
                               fontSize: { xs: '16px', sm: 'inherit' },
-                              px: { xs: 1, sm: 2 } // Padding adjustment
+                              px: { xs: 1, sm: 2 }
                             }
                           }}
                           autoFocus
@@ -441,7 +450,7 @@ export default function Admin() {
                             color: "#fff",
                             fontSize: { xs: '14px', sm: 'inherit' },
                             px: { xs: 0.5, sm: 0 },
-                            textAlign: { xs: 'center', sm: 'left' } // Center text on mobile
+                            textAlign: { xs: 'center', sm: 'left' }
                           }}
                         >
                           {f.name}
@@ -453,7 +462,7 @@ export default function Admin() {
                         spacing={1} 
                         sx={{ 
                           width: { xs: '100%', sm: 'auto' },
-                          justifyContent: { xs: 'center', sm: 'flex-start' }, // Center buttons on mobile
+                          justifyContent: { xs: 'center', sm: 'flex-start' },
                           mt: { xs: 1, sm: 0 }
                         }}
                       >
@@ -466,7 +475,7 @@ export default function Admin() {
                               onClick={() => saveEdit(i)}
                               sx={{ 
                                 minWidth: 'auto',
-                                px: { xs: 1, sm: 2 } // Padding adjustment
+                                px: { xs: 1, sm: 2 }
                               }}
                             >
                               <Icon icon="material-symbols:save" width={20} />
@@ -478,7 +487,7 @@ export default function Admin() {
                               onClick={cancelEdit}
                               sx={{ 
                                 minWidth: 'auto',
-                                px: { xs: 1, sm: 2 } // Padding adjustment
+                                px: { xs: 1, sm: 2 }
                               }}
                             >
                               <Icon icon="material-symbols:cancel" width={20} />
@@ -493,7 +502,7 @@ export default function Admin() {
                               onClick={() => startEdit(i)}
                               sx={{ 
                                 minWidth: 'auto',
-                                px: { xs: 1, sm: 2 } // Padding adjustment
+                                px: { xs: 1, sm: 2 }
                               }}
                             >
                               <Icon icon="line-md:edit-full-twotone" width={20} />
@@ -505,7 +514,7 @@ export default function Admin() {
                               onClick={() => openDeleteModal(i)}
                               sx={{ 
                                 minWidth: 'auto',
-                                px: { xs: 1, sm: 2 } // Padding adjustment
+                                px: { xs: 1, sm: 2 }
                               }}
                             >
                               <Icon icon="material-symbols:delete" width={20} />
@@ -555,11 +564,11 @@ export default function Admin() {
             mx: 'auto',
             bgcolor: '#121212',
             color: '#fff',
-            p: { xs: 2, sm: 3 } // Padding adjustment
+            p: { xs: 2, sm: 3 }
           }}
         >
           <ModalClose onClick={closeDeleteModal} sx={{ color: '#fff' }} />
-          <Typography level="h6" component="h2" mb={1} sx={{ color: '#fff' }}>
+          <Typography level="title-lg" component="h2" mb={1} sx={{ color: '#fff' }}>
             Confirm Delete
           </Typography>
           <Divider sx={{ my: 1, bgcolor: '#333' }} />
