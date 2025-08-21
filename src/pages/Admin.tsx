@@ -134,6 +134,9 @@ export default function Admin() {
     const { data, error } = await supabase.from('foods').insert([{ name: food }]).select();
     if (error) {
       console.error(error);
+      if (error.code === '23505') {
+      showNotification("Mean hz boss", "error");
+      } else
       showNotification("Add ot ban", "error");
     } else {
       setList(prev => [...prev, data[0]]);
